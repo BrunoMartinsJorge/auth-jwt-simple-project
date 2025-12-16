@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth JWT</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            grid-gap: 1em;
+            flex-wrap: wrap;
+        }
+
+        form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 1em;
+        }
+
+        strong {
+            text-decoration: underline;
+        }
+
+        div.input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 14px;
+            color: #2d2d2d;
+            margin-bottom: 5px;
+        }
+
+        input {
+            outline: none;
+            padding: 1em;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 1em;
+            border: none;
+            background-color: #000;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        section.response {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        div.token-data {
+            display: flex;
+            flex-direction: column;
+            margin-top: 1.5em;
+        }
+
+        div.token-data strong {
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="">
+        <h1>
+            Autenticação JWT - <strong>Json Web Token</strong>
+        </h1>
+        <div class="inputs">
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" required>
+            </div>
+        </div>
+        <button onclick="logar()" type="button">Logar</button>
+        <button onclick="register()" id="btn register" type="button">Registrar</button>
+    </form>
+    <section class="response">
+        <h2 class="title">Dados do login...</h2>
+        <div class="token-data">
+
+        </div>
+    </section>
+</body>
+<script>
+    
+    function decodeJwt(token) {
+        const payload = token.split('.')[1];
+        const decoded = atob(payload);
+        return JSON.parse(decoded);
+    }
+
+    function logar() {
+        limparResposta();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        if (email.trim() == '' || senha.trim() == '') {
+            alert('Preencha todos os campos');
+            return;
+        }
+        try {
+            fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, senha }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(res => {
+                if (res.error) {
+                    alert(res.error)
+                    return;
+                } else {
+                    const decoded = decodeJwt(res.token);
+                    gerarResposta();
+                    localStorage.setItem('token', res.token)
+                }
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function limparResposta(){
+        const tokenData = document.querySelector('.token-data');
+        tokenData.innerHTML = '';
+        const title = document.querySelector('.title');
+        title.innerHTML = 'Dados do login...';
+    }
+
+    function gerarResposta() {
+        const token = localStorage.getItem('token');
+        const decoded = decodeJwt(token);
+        const title = document.querySelector('.title');
+        title.innerHTML = 'Token Decodificado';
+        const tokenData = document.querySelector('.token-data');
+        tokenData.innerHTML = `
+            <strong>
+                <p>Id: ${decoded.id}</p>
+                <p>Email: ${decoded.email}</p>
+                <p>Rule: ${decoded.rule}</p>
+            </strong>
+        `;
+    }
+
+    function register() {
+        limparResposta();
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        if (email.trim() == '' || senha.trim() == '') {
+            alert('Preencha todos os campos');
+            return;
+        }
+        try {
+            fetch('http://localhost:3000/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ email, senha }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(res => {
+                if (res.error) {
+                    alert(res.error)
+                    return;
+                } else {
+                    alert('Registrado com sucesso')
+                    localStorage.setItem('token', res.token)
+                }
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }
+</script>
+
+</html>
