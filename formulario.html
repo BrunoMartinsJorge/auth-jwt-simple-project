@@ -87,7 +87,7 @@
 </head>
 
 <body>
-    <form action="">
+    <form>
         <h1>
             Autenticação JWT - <strong>Json Web Token</strong>
         </h1>
@@ -106,27 +106,35 @@
     </form>
     <section class="response">
         <h2 class="title">Dados do login...</h2>
-        <div class="token-data">
-
-        </div>
+        <div class="token-data"></div>
     </section>
 </body>
 <script>
-    
+
+    /* Decodifica o JWT e retorna o payload com as informações da token */
     function decodeJwt(token) {
         const payload = token.split('.')[1];
         const decoded = atob(payload);
         return JSON.parse(decoded);
     }
 
+    /* Loga o usuário */
     function logar() {
+
+        /* Limpa a resposta */
         limparResposta();
+
+        /* Pega o email e a senha dos inputs do formulário */
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
+
+        /* Verificação básica dos campos */
         if (email.trim() == '' || senha.trim() == '') {
             alert('Preencha todos os campos');
             return;
         }
+
+        /* Faz a requisição para o backend */
         try {
             fetch('http://localhost:3000/auth/login', {
                 method: 'POST',
@@ -139,9 +147,11 @@
                     alert(res.error)
                     return;
                 } else {
-                    const decoded = decodeJwt(res.token);
-                    gerarResposta();
+                    /* Salva o token no localStorage */
                     localStorage.setItem('token', res.token)
+
+                    /* Gera a resposta */
+                    gerarResposta();
                 }
             })
         } catch (error) {
@@ -149,13 +159,15 @@
         }
     }
 
-    function limparResposta(){
+    /* Limpa a resposta */
+    function limparResposta() {
         const tokenData = document.querySelector('.token-data');
         tokenData.innerHTML = '';
         const title = document.querySelector('.title');
         title.innerHTML = 'Dados do login...';
     }
 
+    /* Gera a resposta */
     function gerarResposta() {
         const token = localStorage.getItem('token');
         const decoded = decodeJwt(token);
@@ -171,14 +183,23 @@
         `;
     }
 
+    /* Registra o usuário */
     function register() {
+
+        /* Limpa a resposta */
         limparResposta();
+
+        /* Pega o email e a senha dos inputs do formulário */
         const email = document.getElementById('email').value;
         const senha = document.getElementById('senha').value;
+
+        /* Verificação básica dos campos */
         if (email.trim() == '' || senha.trim() == '') {
             alert('Preencha todos os campos');
             return;
         }
+
+        /* Faz a requisição para o backend */
         try {
             fetch('http://localhost:3000/auth/register', {
                 method: 'POST',
