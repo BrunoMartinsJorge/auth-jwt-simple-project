@@ -32,7 +32,7 @@ Projeto simples de **autenticação com JWT (JSON Web Token)** desenvolvido com 
 
 ```bash
 git clone https://github.com/BrunoMartinsJorge/auth-jwt-simple-project.git
-cd seu-repositorio
+cd auth-jwt-simple-project
 ```
 
 ### 2️⃣ Instalar as dependências
